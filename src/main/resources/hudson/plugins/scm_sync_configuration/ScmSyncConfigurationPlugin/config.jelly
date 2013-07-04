@@ -30,6 +30,16 @@
             </j:otherwise>
         </j:choose>
     </f:entry>
+    <f:entry title="${%Ignore System User Commits}" help="${rootUrl}/plugin/scm-sync-configuration/help/noSystemUserCommits-help.html">
+            <j:choose>
+                <j:when test="${it.noSystemUserCommits}">
+                    <f:checkbox name="noSystemUserCommits" checked="${it.noSystemUserCommits}" value="true" />
+                </j:when>
+                <j:otherwise>
+                    <f:checkbox name="noSystemUserCommits" value="true" />
+                </j:otherwise>
+            </j:choose>
+        </f:entry>
     <f:entry title="${%Commit message pattern}" help="${rootUrl}/plugin/scm-sync-configuration/help/commitMessagePattern-help.html">
         <f:textbox name="commitMessagePattern" value="${it.commitMessagePattern}" />
     </f:entry>

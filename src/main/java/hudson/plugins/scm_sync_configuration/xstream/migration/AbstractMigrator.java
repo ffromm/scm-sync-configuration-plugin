@@ -16,6 +16,7 @@ public abstract class AbstractMigrator<TFROM extends ScmSyncConfigurationPOJO, T
 	public static final String SCM_CLASS_ATTRIBUTE = "class";
 	public static final String SCM_NO_USER_COMMIT_MESSAGE = "noUserCommitMessage";
     public static final String SCM_DISPLAY_STATUS = "displayStatus";
+    public static final String SCM_NO_SYSTEM_USER_COMMITS = "noSystemUserCommits";
     public static final String SCM_COMMIT_MESSAGE_PATTERN = "commitMessagePattern";
     public static final String SCM_MANUAL_INCLUDES = "manualSynchronizationIncludes";
 
@@ -39,6 +40,7 @@ public abstract class AbstractMigrator<TFROM extends ScmSyncConfigurationPOJO, T
 		String scmClassAttribute = null;
 		String scmContent = null;
 		boolean noUserCommitMessage = false;
+        boolean noSystemUserCommits = false;
 		boolean displayStatus = true;
         String commitMessagePattern = "[message]";
         List<String> manualIncludes = null;
@@ -49,6 +51,8 @@ public abstract class AbstractMigrator<TFROM extends ScmSyncConfigurationPOJO, T
 				scmRepositoryUrl = reader.getValue();
 			} else if(SCM_NO_USER_COMMIT_MESSAGE.equals(reader.getNodeName())){
 				noUserCommitMessage = Boolean.parseBoolean(reader.getValue());
+            } else if(SCM_NO_SYSTEM_USER_COMMITS.equals(reader.getNodeName())){
+                noSystemUserCommits = Boolean.parseBoolean(reader.getValue());
 			} else if(SCM_DISPLAY_STATUS.equals(reader.getNodeName())){
 				displayStatus = Boolean.parseBoolean(reader.getValue());
 			} else if(SCM_TAG.equals(reader.getNodeName())){
@@ -75,6 +79,7 @@ public abstract class AbstractMigrator<TFROM extends ScmSyncConfigurationPOJO, T
 		pojo.setScm(createSCMFrom(scmClassAttribute, scmContent));
 		pojo.setScmRepositoryUrl(scmRepositoryUrl);
 		pojo.setNoUserCommitMessage(noUserCommitMessage);
+        pojo.setNoSystemUserCommits(noSystemUserCommits);
 		pojo.setDisplayStatus(displayStatus);
         pojo.setCommitMessagePattern(commitMessagePattern);
         pojo.setManualSynchronizationIncludes(manualIncludes);

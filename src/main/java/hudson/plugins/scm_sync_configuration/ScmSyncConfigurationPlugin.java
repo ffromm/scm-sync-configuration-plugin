@@ -23,6 +23,7 @@ import hudson.plugins.scm_sync_configuration.transactions.ScmTransaction;
 import hudson.plugins.scm_sync_configuration.transactions.ThreadedTransaction;
 import hudson.plugins.scm_sync_configuration.xstream.ScmSyncConfigurationXStreamConverter;
 import hudson.plugins.scm_sync_configuration.xstream.migration.ScmSyncConfigurationPOJO;
+import hudson.security.ACL;
 import hudson.util.PluginServletFilter;
 import net.sf.json.JSONObject;
 import org.acegisecurity.AccessDeniedException;
@@ -95,6 +96,8 @@ public class ScmSyncConfigurationPlugin extends Plugin{
     private List<File> filesModifiedByLastReload;
     private List<String> manualSynchronizationIncludes;
 
+    private boolean noSystemUserCommits;
+
     public ScmSyncConfigurationPlugin(){
         // By default, transactions should be asynchronous
         this(false);
@@ -143,6 +146,7 @@ public class ScmSyncConfigurationPlugin extends Plugin{
 		this.displayStatus = pojo.isDisplayStatus();
         this.commitMessagePattern = pojo.getCommitMessagePattern();
         this.manualSynchronizationIncludes = pojo.getManualSynchronizationIncludes();
+        this.noSystemUserCommits = pojo.isNoSystemUserCommits();
 	}
 
 	public void init() {
@@ -171,6 +175,7 @@ public class ScmSyncConfigurationPlugin extends Plugin{
         this.noUserCommitMessage = formData.getBoolean("noUserCommitMessage");
         this.displayStatus = formData.getBoolean("displayStatus");
         this.commitMessagePattern = req.getParameter("commitMessagePattern");
+        this.noSystemUserCommits = formData.getBoolean("noSystemUserCommits");
 
         String oldScmRepositoryUrl = this.scmRepositoryUrl;
 		String scmType = req.getParameter("scm");
@@ -313,7 +318,11 @@ public class ScmSyncConfigurationPlugin extends Plugin{
 		return noUserCommitMessage;
 	}
 
-	public SCM[] getScms(){
+    public boolean isNoSystemUserCommits() {
+        return noSystemUserCommits;
+    }
+
+    public SCM[] getScms(){
 		return SCM.values();
 	}
 
@@ -367,8 +376,13 @@ public class ScmSyncConfigurationPlugin extends Plugin{
 
     public Future<Void> commitChangeset(ChangeSet changeset){
         try {
+            User currentUser = getCurrentUser();
+            if(this.noSystemUserCommits && currentUser != null && currentUser.getDisplayName().equals(ACL.SYSTEM.getPrincipal())) {
+                return null;
+            }
+
             if(!changeset.isEmpty()){
-                latestCommitFuture = this.business.queueChangeSet(createScmContext(), changeset, getCurrentUser(), ScmSyncConfigurationDataProvider.retrieveComment(false));
+                latestCommitFuture = this.business.queueChangeSet(createScmContext(), changeset, currentUser, ScmSyncConfigurationDataProvider.retrieveComment(false));
                 return latestCommitFuture;
             } else {
                 return null;

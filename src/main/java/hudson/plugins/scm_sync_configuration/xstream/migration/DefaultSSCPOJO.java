@@ -12,6 +12,7 @@ public class DefaultSSCPOJO implements ScmSyncConfigurationPOJO {
 	private boolean displayStatus;
     private String commitMessagePattern;
     private List<String> manualSynchronizationIncludes;
+    private boolean noSystemUserCommits;
 	
 	public String getScmRepositoryUrl() {
 		return scmRepositoryUrl;
@@ -52,5 +53,13 @@ public class DefaultSSCPOJO implements ScmSyncConfigurationPOJO {
 
     public List<String> getManualSynchronizationIncludes(){
         return this.manualSynchronizationIncludes;
+    }
+
+    public boolean isNoSystemUserCommits() {
+        return noSystemUserCommits;
+    }
+
+    public void setNoSystemUserCommits(boolean noSystemUserCommits) {
+        this.noSystemUserCommits = noSystemUserCommits;
     }
 }
